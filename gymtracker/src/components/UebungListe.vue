@@ -20,10 +20,7 @@ const loadExercises = async () => {
     const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
     const response = await fetch(`${baseUrl}/api/exercises`)
 
-    if (!response.ok) {
-      error.value = `HTTP-Fehler: ${response.status}`
-      return
-    }
+    if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`)
 
     exercises.value = await response.json()
   } catch (e: any) {
