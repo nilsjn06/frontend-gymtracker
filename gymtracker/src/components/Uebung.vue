@@ -1,10 +1,8 @@
 <script setup lang="ts">
 defineProps<{
+  id: number
   name: string
   muskelgruppe: string
-  satz: number
-  wiederholungen: number
-  gewicht: number
 }>()
 </script>
 
@@ -13,9 +11,6 @@ defineProps<{
     <h3>{{ name }}</h3>
     <ul>
       <li><strong>Muskelgruppe:</strong> {{ muskelgruppe }}</li>
-      <li><strong>Sätze:</strong> {{ satz }}</li>
-      <li><strong>Wiederholungen:</strong> {{ wiederholungen }}</li>
-      <li><strong>Gewicht:</strong> {{ gewicht }} kg</li>
     </ul>
   </div>
 </template>

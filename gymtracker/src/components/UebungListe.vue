@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import Uebung from './Uebung.vue'
 
 interface Exercise {
+  id: number
   name: string
-  muskelgruppe: string
-  satz: number
-  wiederholungen: number
-  gewicht: number
+  muskelgruppe: string // kommt als Enum-String aus Spring
 }
 
 const exercises = ref<Exercise[]>([])
@@ -21,9 +20,7 @@ const loadExercises = async () => {
     const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
     const response = await fetch(`${baseUrl}/api/exercises`)
 
-    if (!response.ok) {
-      throw new Error(`HTTP-Fehler: ${response.status}`)
-    }
+    if (!response.ok) throw new Error(`HTTP-Fehler: ${response.status}`)
 
     exercises.value = await response.json()
   } catch (e: any) {
@@ -34,9 +31,7 @@ const loadExercises = async () => {
   }
 }
 
-onMounted(() => {
-  loadExercises()
-})
+onMounted(loadExercises)
 </script>
 
 <template>
@@ -47,10 +42,8 @@ onMounted(() => {
     <p v-else-if="error" class="error">Fehler: {{ error }}</p>
 
     <ul v-else>
-      <li v-for="ex in exercises" :key="ex.name">
-        <strong>{{ ex.name }}</strong>
-        – {{ ex.muskelgruppe }}
-        ({{ ex.satz }}×{{ ex.wiederholungen }} mit {{ ex.gewicht }} kg)
+      <li v-for="ex in exercises" :key="ex.id">
+        <Uebung :id="ex.id" :name="ex.name" :muskelgruppe="ex.muskelgruppe" />
       </li>
     </ul>
   </section>
