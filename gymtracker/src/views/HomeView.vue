@@ -12,3 +12,5 @@ import  UebungListe from '@/components/UebungListe.vue'
 <style scoped>
 section { max-width: 720px; margin: 0 auto; }
 </style>
+
+//dsdsds
