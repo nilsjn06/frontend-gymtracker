@@ -3,15 +3,27 @@ import { RouterLink, RouterView } from 'vue-router'
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="48" height="48" />
-    <h1 class="title">GymTracker</h1>
-
-    <nav>
-      <RouterLink to="/">Home</RouterLink>
-      <RouterLink to="/about">About</RouterLink>
-    </nav>
-  </header>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+    <div class="container-fluid">
+      <RouterLink class="navbar-brand" to="/">GymTracker</RouterLink>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="#navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/exercises">Übungen</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/workout-start">Workout starten</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink class="nav-link" to="/workout-history">Workoutverlauf</RouterLink>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
 
   <main>
     <RouterView />
@@ -19,15 +31,7 @@ import { RouterLink, RouterView } from 'vue-router'
 </template>
 
 <style scoped>
-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border-bottom: 1px solid var(--color-border);
-}
-.title { margin: 0; font-size: 1.2rem; flex: 1; }
-nav a { padding: 0.25rem 0.75rem; border-left: 1px solid var(--color-border); text-decoration: none; }
-nav a:first-of-type { border-left: 0; }
-main { padding: 1rem; }
+/* Platz schaffen damit Inhalt nicht von der fixierten Navbar überlappt wird.
+   Passe den Wert bei Bedarf an (Bootstrap-Navbarhöhe ~56px) */
+main { padding: 1rem; padding-top: 70px; }
 </style>
