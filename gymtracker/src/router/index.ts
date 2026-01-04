@@ -19,6 +19,21 @@ const router = createRouter({
       name: 'exercises',
       component: () => import('../views/ExercisesView.vue'),
     },
+    {
+      path: '/workout-start',
+      name: 'workout-start',
+      component: () => import('../views/WorkoutStart.vue'),
+    },
+    {
+      path: '/workouts/:id/sets',
+      name: 'workout-sets',
+      component: () => import('../views/WorkoutSets.vue'),
+    },
+    {
+      path: '/workout-history',
+      name: 'workout-history',
+      component: () => import('../views/WorkoutHistory.vue'),
+    },
   ],
 })
 
