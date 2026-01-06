@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getAllExercises, addSetToWorkout, getWorkout } from '../services/api'
+import { getAllExercises, addSetToWorkout, getWorkout, removeExerciseFromWorkout } from '../services/api'
 import type { ExerciseDto } from '../services/api'
 
 const route = useRoute()
@@ -21,6 +21,7 @@ const sets = ref<SetRow[]>([])
 const addedExercises = ref<Array<{ exercise: ExerciseDto; sets: SetRow[] }>>([])
 const saving = ref(false)
 const error = ref<string | null>(null)
+const removingExercise = ref(false)
 
 const workoutTitle = ref<string | null>(null)
 const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`)
@@ -97,6 +98,27 @@ async function finishExercise() {
   }
 }
 
+async function removeExercise(exerciseId: number) {
+  error.value = null
+  removingExercise.value = true
+  try {
+    // rufe Backend an, das alle Sätze dieser Übung im Workout löscht
+    const updated = await removeExerciseFromWorkout(workoutId!, exerciseId)
+    // aktualisiere lokal: baue addedExercises neu aus dem zurückgegebenen WorkoutViewDto falls vorhanden
+    if (updated && updated.exercises) {
+      // mappe die Struktur: updated.exercises enthält exerciseName, exerciseId, sets
+      addedExercises.value = updated.exercises.map((e: any) => ({ exercise: { id: e.exerciseId, name: e.exerciseName, muskelgruppe: null }, sets: e.sets.map((s: any) => ({ reps: s.reps, weight: s.kg })) }))
+    } else {
+      // fallback: filter lokal
+      addedExercises.value = addedExercises.value.filter(ae => ae.exercise.id !== exerciseId)
+    }
+  } catch (e: any) {
+    error.value = e.message ?? 'Fehler beim Entfernen der Übung'
+  } finally {
+    removingExercise.value = false
+  }
+}
+
 function endWorkout() {
   // entferne laufende Workout-ID
   localStorage.removeItem('currentWorkoutId')
@@ -124,6 +146,9 @@ onMounted(() => {
         <div class="card">
           <div class="card-body">
             <h6 class="card-title">{{ ae.exercise.name }}</h6>
+            <div class="mb-2 text-end">
+              <button class="btn btn-sm btn-outline-danger" @click="removeExercise(ae.exercise.id)" :disabled="removingExercise">Aus Workout entfernen</button>
+            </div>
             <ul class="list-group list-group-flush">
               <li v-for="(s, i) in ae.sets" :key="i" class="list-group-item">
                 Satz {{ i + 1 }} — {{ s.reps ?? '-' }} Wdh. — {{ s.weight ?? '-' }} kg

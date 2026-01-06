@@ -70,4 +70,16 @@ export async function addSetToWorkout(workoutId: number | string, dto: AddSetDto
   return await res.json();
 }
 
+export async function removeExerciseFromWorkout(workoutId: number | string, exerciseId: number | string) {
+  const res = await fetch(`${BASE}/api/workouts/${workoutId}/exercises/${exerciseId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Fehler beim Entfernen der Übung aus Workout: ${res.status} ${text}`)
+  }
+  return await res.json()
+}
+
 export {};
