@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getAllWorkouts, getWorkoutDetails, getAllExercises, deleteWorkout, WorkoutDetailDto, WorkoutViewDto } from '../services/api'
+import { getAllWorkouts, getWorkoutDetails, getAllExercises, deleteWorkout } from '../services/api'
+import type { WorkoutDetailDto, WorkoutViewDto } from '../services/api'
 
 // Wechsel zu any[] um Debug-Felder (raw/showRaw) sicher zu handhaben
 const workouts = ref<any[]>([])
