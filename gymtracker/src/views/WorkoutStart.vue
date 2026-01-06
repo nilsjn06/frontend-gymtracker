@@ -15,9 +15,14 @@ async function submit() {
     error.value = 'Bitte ein Datum auswählen.'
     return
   }
+  // Titel ist jetzt Pflicht
+  if (!title.value || !title.value.trim()) {
+    error.value = 'Bitte einen Titel eingeben.'
+    return
+  }
   loading.value = true
   try {
-    const dto = { date: date.value, title: title.value }
+    const dto = { date: date.value, title: title.value.trim() }
     const created = await createWorkout(dto)
     // Weiter zur Seite zum Hinzufügen von Sets
     await router.push(`/workouts/${created.id}/sets`)
@@ -42,8 +47,8 @@ async function submit() {
       </div>
 
       <div class="mb-3">
-        <label for="title" class="form-label">Titel (optional)</label>
-        <input id="title" type="text" class="form-control" v-model="title" placeholder="z.B. Push" />
+        <label for="title" class="form-label">Titel <span class="text-danger">*</span></label>
+        <input id="title" type="text" class="form-control" v-model="title" placeholder="z.B. Push" required />
       </div>
 
       <button type="submit" class="btn btn-primary" :disabled="loading">

@@ -1,17 +1,14 @@
-// Diese Datei wurde entfernt. Ursprünglich hinzugefügt für Frontend-API-Aufrufe.
-// Wenn du die API-Funktionen wiederherstellen möchtest, lege hier eine Implementierung an oder checke den Git-Stand ein.
-
 const BASE = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:8080';
 
 export type CreateWorkoutDto = {
   date: string; // yyyy-MM-dd
-  title?: string | null;
+  title: string; // jetzt Pflicht
 }
 
 export type WorkoutViewDto = {
   id: number;
   date: string;
-  title?: string | null;
+  title: string; // jetzt Pflicht
 }
 
 export async function createWorkout(dto: CreateWorkoutDto): Promise<WorkoutViewDto> {
