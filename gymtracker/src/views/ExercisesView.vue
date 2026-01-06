@@ -45,8 +45,8 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label">Name</label>
-              <input v-model="createForm.name" type="text" class="form-control">
+              <label class="form-label">Name <span class="text-danger">*</span></label>
+              <input v-model="createForm.name" type="text" class="form-control" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Muskelgruppe</label>
@@ -74,8 +74,8 @@
           </div>
           <div class="modal-body">
             <div class="mb-3">
-              <label class="form-label">Name</label>
-              <input v-model="editForm.name" type="text" class="form-control">
+              <label class="form-label">Name <span class="text-danger">*</span></label>
+              <input v-model="editForm.name" type="text" class="form-control" required />
             </div>
             <div class="mb-3">
               <label class="form-label">Muskelgruppe</label>
@@ -171,8 +171,13 @@ function hideCreateModal() {
 
 async function saveCreate() {
   createError.value = null
+  // client-side validation: name required
+  if (!createForm.value.name || !createForm.value.name.trim()) {
+    createError.value = 'Bitte einen Namen für die Übung eingeben.'
+    return
+  }
   try {
-    const payload = { name: createForm.value.name, muskelgruppe: createForm.value.muskelgruppe }
+    const payload = { name: createForm.value.name.trim(), muskelgruppe: createForm.value.muskelgruppe }
     const res = await fetch(`${baseUrl}/api/exercises`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -213,8 +218,13 @@ function hideEditModal() {
 async function saveEdit() {
   if (!editExercise.value) return
   editError.value = null
+  // client-side validation: name required
+  if (!editForm.value.name || !editForm.value.name.trim()) {
+    editError.value = 'Bitte einen Namen für die Übung eingeben.'
+    return
+  }
   try {
-    const payload = { name: editForm.value.name, muskelgruppe: editForm.value.muskelgruppe }
+    const payload = { name: editForm.value.name.trim(), muskelgruppe: editForm.value.muskelgruppe }
     const res = await fetch(`${baseUrl}/api/exercises/${editExercise.value.id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
