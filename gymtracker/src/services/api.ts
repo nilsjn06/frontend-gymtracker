@@ -82,4 +82,48 @@ export async function removeExerciseFromWorkout(workoutId: number | string, exer
   return await res.json()
 }
 
+// --------------------------------------------------
+// Neue Typen und Funktionen für den Workout-Verlauf
+// --------------------------------------------------
+
+export type WorkoutExerciseSetDto = {
+  id: number;
+  weight: number;
+  reps: number;
+}
+
+export type WorkoutExerciseDetailDto = {
+  id: number;
+  name: string;
+  sets: WorkoutExerciseSetDto[];
+}
+
+export type WorkoutDetailDto = {
+  id: number;
+  date: string;
+  title: string;
+  exercises: WorkoutExerciseDetailDto[];
+}
+
+// Lade alle Workouts (kurze Ansicht)
+export async function getAllWorkouts(): Promise<WorkoutViewDto[]> {
+  const res = await fetch(`${BASE}/api/workouts`);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Fehler beim Laden der Workouts: ${res.status} ${text}`);
+  }
+  return await res.json();
+}
+
+// Lade ein Workout inkl. Übungen und Sätzen. Erwartet, dass der Backend-Endpoint
+// beim GET /api/workouts/:id detaillierte Informationen zurückliefert.
+export async function getWorkoutDetails(workoutId: number | string): Promise<WorkoutDetailDto> {
+  const res = await fetch(`${BASE}/api/workouts/${workoutId}`);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Fehler beim Laden des Workouts: ${res.status} ${text}`);
+  }
+  return await res.json();
+}
+
 export {};
