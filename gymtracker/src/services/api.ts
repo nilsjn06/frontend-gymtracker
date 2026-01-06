@@ -126,4 +126,18 @@ export async function getWorkoutDetails(workoutId: number | string): Promise<Wor
   return await res.json();
 }
 
+// Lösche ein Workout
+export async function deleteWorkout(workoutId: number | string): Promise<void> {
+  const res = await fetch(`${BASE}/api/workouts/${workoutId}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Fehler beim Löschen des Workouts: ${res.status} ${text}`)
+  }
+  // optional: return response body if provided
+  return
+}
+
 export {};

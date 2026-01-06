@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getAllWorkouts, getWorkoutDetails, getAllExercises, WorkoutDetailDto, WorkoutViewDto } from '../services/api'
+import { getAllWorkouts, getWorkoutDetails, getAllExercises, deleteWorkout, WorkoutDetailDto, WorkoutViewDto } from '../services/api'
 
 // Wechsel zu any[] um Debug-Felder (raw/showRaw) sicher zu handhaben
 const workouts = ref<any[]>([])
 const loading = ref(false)
 const error = ref<string | null>(null)
+
+// lokale Map für Löschzustand pro Workout (string keys)
+const deleting = ref<Record<string, boolean>>({})
 
 // Hilfsfunktion: rekursiv durchsucht ein Objekt/Array nach einem Objekt mit id===searchId und einem name-Feld
 function findNameInObject(obj: any, searchId: any, depth = 0): string | null {
@@ -35,6 +38,21 @@ function findNameInObject(obj: any, searchId: any, depth = 0): string | null {
   return null
 }
 
+async function handleDelete(workoutId: number) {
+  const ok = confirm('Soll dieses Workout wirklich gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.')
+  if (!ok) return
+  deleting.value[String(workoutId)] = true
+  try {
+    await deleteWorkout(workoutId)
+    // entferne aus Liste
+    workouts.value = workouts.value.filter((w: any) => w.id !== workoutId)
+  } catch (e: any) {
+    alert(`Fehler beim Löschen: ${e.message ?? e}`)
+  } finally {
+    deleting.value[String(workoutId)] = false
+  }
+}
+
 // Lade alle Workouts und ihre Details
 async function loadWorkouts() {
   loading.value = true
@@ -42,13 +60,13 @@ async function loadWorkouts() {
   try {
     const list = await getAllWorkouts()
 
-    // Lade alle bekannten Übungen einmal und baue eine id->name Map
-    let exerciseMap: Record<number, string> = {}
+    // Lade alle bekannten Übungen einmal und baue eine id->name Map (string keys)
+    let exerciseMap: Record<string, string> = {}
     try {
       const all = await getAllExercises()
       for (const e of all) {
-        if (e && (typeof e.id === 'number' || typeof e.id === 'string')) {
-          exerciseMap[Number(e.id)] = e.name ?? ''
+        if (e && e.id != null) {
+          exerciseMap[String(e.id)] = e.name ?? ''
         }
       }
     } catch (e) {
@@ -69,7 +87,7 @@ async function loadWorkouts() {
           normalizedExercises = d.exercises.map((ex: any) => {
             const exId = (ex && (ex.id ?? ex.exerciseId ?? ex.exercise?.id)) ?? null
             const nameFromDto = ex?.name ?? ex?.exercise?.name ?? ex?.exerciseName
-            const nameFromMap = exId != null ? (exerciseMap[Number(exId)] ?? exerciseMap[String(exId)]) : undefined
+            const nameFromMap = exId != null ? (exerciseMap[String(exId)]) : undefined
             const nameFromRaw = exId != null ? findNameInObject(d, exId) : undefined
             const finalName = nameFromDto ?? nameFromMap ?? nameFromRaw ?? ''
             return {
@@ -89,7 +107,7 @@ async function loadWorkouts() {
             const exName = s.exerciseName ?? s.exercise?.name
             const key = exId ?? 'unknown'
             if (!byEx.has(key)) {
-              const nameFromMap = exId != null ? (exerciseMap[Number(exId)] ?? exerciseMap[String(exId)]) : undefined
+              const nameFromMap = exId != null ? (exerciseMap[String(exId)]) : undefined
               const nameFromRaw = exId != null ? findNameInObject(d, exId) : undefined
               byEx.set(key, { id: exId ?? -1, name: exName ?? nameFromMap ?? nameFromRaw ?? '', sets: [] })
             }
@@ -180,6 +198,17 @@ onMounted(() => {
                   </table>
                 </div>
               </div>
+            </div>
+
+            <div class="mt-3">
+              <button
+                class="btn btn-danger btn-sm"
+                @click="handleDelete(workout.id)"
+                :disabled="deleting[workout.id]"
+              >
+                <span v-if="deleting[workout.id]" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Löschen
+              </button>
             </div>
 
             <!-- Rohdaten-UI entfernt -->
