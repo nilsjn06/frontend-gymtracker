@@ -97,7 +97,8 @@ async function saveNewExercise() {
   }
 }
 
-function selectExercise(ex: ExerciseDto) {
+function selectExercise(ex: ExerciseDto | undefined) {
+  if (!ex) return
   selectedExercise.value = ex
   // initialisiere mit einem Satz
   sets.value = [{ reps: null, weight: null }]
