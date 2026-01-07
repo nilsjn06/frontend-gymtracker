@@ -50,6 +50,25 @@ export async function getAllExercises(): Promise<ExerciseDto[]> {
   return await res.json();
 }
 
+// Neue Funktion: Übung erstellen
+export type CreateExerciseDto = {
+  name: string;
+  muskelgruppe?: string | null;
+}
+
+export async function createExercise(dto: CreateExerciseDto): Promise<ExerciseDto> {
+  const res = await fetch(`${BASE}/api/exercises`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(dto),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Fehler beim Erstellen der Übung: ${res.status} ${text}`);
+  }
+  return await res.json();
+}
+
 // AddSet DTO
 export type AddSetDto = {
   exerciseId: number;

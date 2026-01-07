@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getAllExercises, addSetToWorkout, getWorkout, removeExerciseFromWorkout } from '../services/api'
+import { getAllExercises, addSetToWorkout, getWorkout, removeExerciseFromWorkout, createExercise } from '../services/api'
 import type { ExerciseDto } from '../services/api'
 
 const route = useRoute()
@@ -12,6 +12,13 @@ const exercises = ref<ExerciseDto[]>([])
 const loadingExercises = ref(false)
 const modalOpen = ref(false)
 const selectedExercise = ref<ExerciseDto | null>(null)
+
+// --- neue States für "Neue Übung" ---
+const createMode = ref(false)
+const newExerciseForm = ref({ name: '', muskelgruppe: 'BRUST' })
+const creatingExercise = ref(false)
+const createError = ref<string | null>(null)
+// --------------------------------------
 
 // sets for the currently selected exercise
 type SetRow = { reps: number | null; weight: number | null }
@@ -50,8 +57,43 @@ async function loadExercises() {
 function openModal() {
   error.value = null
   modalOpen.value = true
+  createMode.value = false
+  createError.value = null
   if (exercises.value.length === 0) {
     loadExercises()
+  }
+}
+
+// neue Funktion: erstelle Übung via API und lade Liste neu
+async function saveNewExercise() {
+  createError.value = null
+  if (!newExerciseForm.value.name || !newExerciseForm.value.name.trim()) {
+    createError.value = 'Bitte einen Namen für die Übung eingeben.'
+    return
+  }
+
+  creatingExercise.value = true
+  try {
+    const payload = { name: newExerciseForm.value.name.trim(), muskelgruppe: newExerciseForm.value.muskelgruppe }
+    const created = await createExercise(payload)
+
+    // lade Übungen neu und wähle das neu erstellte automatisch
+    await loadExercises()
+    const found = exercises.value.find(e => e.id === created.id)
+    if (found) {
+      selectExercise(found)
+    } else {
+      // fallback: wähle das erste
+      if (exercises.value.length > 0) selectExercise(exercises.value[0])
+    }
+
+    // reset create form
+    newExerciseForm.value = { name: '', muskelgruppe: 'BRUST' }
+    createMode.value = false
+  } catch (e: any) {
+    createError.value = e?.message ?? 'Fehler beim Erstellen der Übung'
+  } finally {
+    creatingExercise.value = false
   }
 }
 
@@ -205,18 +247,48 @@ onMounted(() => {
           <div class="modal-body">
             <div v-if="loadingExercises">Lade Übungen...</div>
             <div v-else>
-              <ul class="list-group">
-                <li v-for="ex in exercises" :key="ex.id" class="list-group-item list-group-item-action" @click="selectExercise(ex)" style="cursor:pointer">
-                  <div class="d-flex justify-content-between">
-                    <div>{{ ex.name }}</div>
-                    <small class="text-muted">{{ ex.muskelgruppe ?? '' }}</small>
-                  </div>
-                </li>
-              </ul>
+              <div v-if="!createMode">
+                <ul class="list-group">
+                  <li v-for="ex in exercises" :key="ex.id" class="list-group-item list-group-item-action" @click="selectExercise(ex)" style="cursor:pointer">
+                    <div class="d-flex justify-content-between">
+                      <div>{{ ex.name }}</div>
+                      <small class="text-muted">{{ ex.muskelgruppe ?? '' }}</small>
+                    </div>
+                  </li>
+                </ul>
+              </div>
+
+              <div v-else>
+                <div class="mb-3">
+                  <label class="form-label">Name <span class="text-danger">*</span></label>
+                  <input v-model="newExerciseForm.name" type="text" class="form-control" placeholder="z. B. Bankdrücken" />
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Muskelgruppe</label>
+                  <select v-model="newExerciseForm.muskelgruppe" class="form-select">
+                    <option>BRUST</option>
+                    <option>RUECKEN</option>
+                    <option>BEINE</option>
+                    <option>SCHULTERN</option>
+                    <option>BIZEPS</option>
+                    <option>TRIZEPS</option>
+                    <option>BAUCH</option>
+                  </select>
+                </div>
+                <p v-if="createError" class="text-danger">{{ createError }}</p>
+              </div>
+
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" @click="modalOpen = false">Abbrechen</button>
+            <template v-if="!createMode">
+              <button type="button" class="btn btn-outline-primary" @click="createMode = true">Neue Übung</button>
+            </template>
+            <template v-else>
+              <button type="button" class="btn btn-secondary" @click="createMode = false">Zurück</button>
+              <button type="button" class="btn btn-success" @click="saveNewExercise" :disabled="creatingExercise">{{ creatingExercise ? 'Speichere...' : 'Erstellen' }}</button>
+            </template>
           </div>
         </div>
       </div>
