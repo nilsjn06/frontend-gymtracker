@@ -7,6 +7,19 @@ const loading = ref(false)
 const error = ref<string | null>(null)
 const deleting = ref<Record<string, boolean>>({})
 
+// Helfer: robuste Anzeige des Übungsnamens
+function getDisplayName(ex: any): string {
+  try {
+    const raw = ex?.name ?? ''
+    const trimmed = String(raw).trim()
+    if (trimmed.length > 0) return trimmed
+    if (ex?.id != null && ex.id !== -1) return `Übung ${ex.id}`
+    return 'Unbenannte Übung'
+  } catch {
+    return 'Unbenannte Übung'
+  }
+}
+
 function findNameInObject(obj: any, searchId: any, depth = 0): string | null {
   if (obj == null || depth > 6) return null
   if (Array.isArray(obj)) {
@@ -87,10 +100,16 @@ async function loadWorkouts() {
             const nameFromRaw = exId != null ? findNameInObject(d, exId) : undefined
             const finalName = nameFromDto ?? nameFromMap ?? nameFromRaw ?? ''
 
+            // normalize sets: support different backend shapes (kg vs weight, satz vs id)
+            const rawSets = ex.sets ?? ex.setList ?? []
+            const normalizedSets = Array.isArray(rawSets)
+              ? rawSets.map((s: any) => ({ id: s.id ?? s.satz ?? -1, weight: s.weight ?? s.kg ?? 0, reps: s.reps ?? 0 }))
+              : []
+
             return {
               id: exId ?? -1,
               name: finalName,
-              sets: ex.sets ?? ex.setList ?? [],
+              sets: normalizedSets,
             }
           })
         } else if (Array.isArray((d as any).sets) && (d as any).sets.length > 0) {
@@ -108,13 +127,17 @@ async function loadWorkouts() {
               byEx.set(key, { id: exId ?? -1, name: exName ?? nameFromMap ?? nameFromRaw ?? '', sets: [] })
             }
 
-            byEx.get(key).sets.push({ id: s.id ?? -1, weight: s.weight ?? 0, reps: s.reps ?? 0 })
+            // normalize weight field (backend may return 'kg')
+            byEx.get(key).sets.push({ id: s.id ?? -1, weight: s.weight ?? s.kg ?? 0, reps: s.reps ?? 0 })
           }
 
           normalizedExercises = Array.from(byEx.values())
         } else {
           normalizedExercises = []
         }
+
+        // Debug: Ausgabe der normalisierten Übungen, hilft zu prüfen, ob Namen vorhanden sind
+        console.log('WorkoutHistory: loaded exercises for workout', d.id, normalizedExercises.map((ne: any) => ({ id: ne.id, name: ne.name })))
 
         detailed.push({ id: d.id, date: d.date, title: d.title, exercises: normalizedExercises })
       } catch {
@@ -169,36 +192,32 @@ onMounted(() => void loadWorkouts())
 
             <div v-else class="mt-3">
               <div v-for="ex in workout.exercises" :key="ex.id" class="mb-3">
-                <!-- WICHTIG: table-responsive verhindert “rauslaufen” -->
+                <!-- Übungsname oberhalb der Tabelle: einfache Überschrift, sichtbar in allen Themes -->
+                <div class="mb-2">
+                  <div class="bg-primary text-white border rounded px-2 py-1 fw-semibold" style="min-height:1.4rem">
+                    {{ getDisplayName(ex) }}
+                  </div>
+                </div>
+
                 <div class="table-responsive">
                   <table class="table table-sm mb-0">
                     <thead>
-                    <tr>
-                      <th>Satz</th>
-                      <th>Gewicht (kg)</th>
-                      <th>Wiederh.</th>
-                    </tr>
+                      <tr>
+                        <th>Satz</th>
+                        <th>Gewicht (kg)</th>
+                        <th>Wiederh.</th>
+                      </tr>
                     </thead>
                     <tbody>
-                    <tr>
-                      <td colspan="3" class="table-primary text-white fw-bold">
-                        {{
-                          ex.name && ex.name !== ''
-                            ? ex.name
-                            : (ex.id && ex.id !== -1 ? `Übung ${ex.id}` : 'Unbenannte Übung')
-                        }}
-                      </td>
-                    </tr>
+                      <tr v-for="(s, idx) in ex.sets" :key="s.id">
+                        <td>{{ idx + 1 }}</td>
+                        <td>{{ s.weight }}</td>
+                        <td>{{ s.reps }}</td>
+                      </tr>
 
-                    <tr v-for="(s, idx) in ex.sets" :key="s.id">
-                      <td>{{ idx + 1 }}</td>
-                      <td>{{ s.weight }}</td>
-                      <td>{{ s.reps }}</td>
-                    </tr>
-
-                    <tr v-if="ex.sets.length === 0">
-                      <td colspan="3" class="text-muted">Keine Sätze vorhanden</td>
-                    </tr>
+                      <tr v-if="ex.sets.length === 0">
+                        <td colspan="3" class="text-muted">Keine Sätze vorhanden</td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
