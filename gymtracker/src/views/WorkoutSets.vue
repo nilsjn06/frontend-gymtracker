@@ -113,6 +113,51 @@ function removeSetRow(index: number) {
   sets.value.splice(index, 1)
 }
 
+// --- Input validation / sanitization handlers ---
+// Reps (WHD): only digits, max 4 digits, no decimals
+function onRepsInput(e: Event, s: SetRow) {
+  const input = e.target as HTMLInputElement
+  let raw = input.value || ''
+  // remove non-digit characters
+  raw = raw.replace(/\D+/g, '')
+  // limit to 4 digits
+  if (raw.length > 4) raw = raw.slice(0, 4)
+  // update model
+  s.reps = raw === '' ? null : parseInt(raw, 10)
+  // reflect sanitized value in the input element
+  input.value = raw
+}
+
+// Weight (KG): allow digits and one decimal point, normalize comma to dot,
+// integer part max 3 digits, no letters
+function onWeightInput(e: Event, s: SetRow) {
+  const input = e.target as HTMLInputElement
+  let raw = input.value || ''
+  // normalize comma to dot
+  raw = raw.replace(/,/g, '.')
+  // remove anything except digits and dot
+  raw = raw.replace(/[^0-9.]/g, '')
+  // keep only first dot
+  const parts = raw.split('.')
+  if (parts.length > 1) {
+    raw = parts[0] + '.' + parts.slice(1).join('')
+  }
+  // enforce max 3 digits for integer part
+  let [intPart, decPart] = raw.split('.')
+  if (!intPart) intPart = ''
+  if (intPart.length > 3) intPart = intPart.slice(0, 3)
+  if (decPart !== undefined) {
+    // limit decimals to at most 2 digits to be reasonable
+    decPart = decPart.slice(0, 2)
+    raw = intPart + '.' + decPart
+  } else {
+    raw = intPart
+  }
+  s.weight = raw === '' ? null : parseFloat(raw)
+  input.value = raw
+}
+// ------------------------------------------------
+
 async function finishExercise() {
   if (!selectedExercise.value) return
   error.value = null
@@ -216,11 +261,11 @@ onMounted(() => {
           <div v-for="(s, i) in sets" :key="i" class="d-flex gap-2 align-items-end mb-2">
             <div class="flex-grow-1">
               <label class="form-label">Wiederholungen</label>
-              <input type="number" min="0" class="form-control" v-model.number="s.reps" />
+              <input type="number" min="0" class="form-control" v-model.number="s.reps" @input="onRepsInput($event, s)" inputmode="numeric" pattern="[0-9]*" />
             </div>
             <div class="flex-grow-1">
               <label class="form-label">Gewicht (kg)</label>
-              <input type="number" step="0.5" min="0" class="form-control" v-model.number="s.weight" />
+              <input type="number" step="0.5" min="0" class="form-control" v-model.number="s.weight" @input="onWeightInput($event, s)" inputmode="decimal" />
             </div>
             <div>
               <button type="button" class="btn btn-outline-danger btn-sm" @click.prevent="removeSetRow(i)">-</button>
