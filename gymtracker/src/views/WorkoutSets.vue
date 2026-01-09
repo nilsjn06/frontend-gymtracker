@@ -128,33 +128,35 @@ function onRepsInput(e: Event, s: SetRow) {
   input.value = raw
 }
 
-// Weight (KG): allow digits and one decimal point, normalize comma to dot,
-// integer part max 3 digits, no letters
+// Weight (KG): accept digits and comma or dot, integer part max 3 digits, allow up to two decimal digits (e.g. 10,25 or 100,75)
 function onWeightInput(e: Event, s: SetRow) {
   const input = e.target as HTMLInputElement
   let raw = input.value || ''
-  // normalize comma to dot
-  raw = raw.replace(/,/g, '.')
+  // normalize comma to dot for parsing
+  const normalized = raw.replace(/,/g, '.')
   // remove anything except digits and dot
-  raw = raw.replace(/[^0-9.]/g, '')
+  let cleaned = normalized.replace(/[^0-9.]/g, '')
   // keep only first dot
-  const parts = raw.split('.')
+  const parts = cleaned.split('.')
   if (parts.length > 1) {
-    raw = parts[0] + '.' + parts.slice(1).join('')
+    cleaned = parts[0] + '.' + parts.slice(1).join('')
   }
   // enforce max 3 digits for integer part
-  let [intPart, decPart] = raw.split('.')
+  let [intPart, decPart] = cleaned.split('.')
   if (!intPart) intPart = ''
   if (intPart.length > 3) intPart = intPart.slice(0, 3)
   if (decPart !== undefined) {
-    // limit decimals to at most 2 digits to be reasonable
+    // limit decimals to at most 2 digits
     decPart = decPart.slice(0, 2)
-    raw = intPart + '.' + decPart
+    cleaned = intPart + '.' + decPart
   } else {
-    raw = intPart
+    cleaned = intPart
   }
-  s.weight = raw === '' ? null : parseFloat(raw)
-  input.value = raw
+
+  // update model
+  s.weight = cleaned === '' ? null : parseFloat(cleaned)
+  // reflect sanitized value in input using comma as decimal separator for display
+  input.value = cleaned === '' ? '' : cleaned.replace('.', ',')
 }
 // ------------------------------------------------
 
@@ -265,7 +267,8 @@ onMounted(() => {
             </div>
             <div class="flex-grow-1">
               <label class="form-label">Gewicht (kg)</label>
-              <input type="number" step="0.5" min="0" class="form-control" v-model.number="s.weight" @input="onWeightInput($event, s)" inputmode="decimal" />
+              <!-- use text input so comma is accepted; display uses comma for decimal separator -->
+              <input type="text" class="form-control" :value="s.weight == null ? '' : String(s.weight).replace('.', ',')" @input="onWeightInput($event, s)" inputmode="decimal" pattern="[0-9.,]*" />
             </div>
             <div>
               <button type="button" class="btn btn-outline-danger btn-sm" @click.prevent="removeSetRow(i)">-</button>
