@@ -46,7 +46,10 @@
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label">Name <span class="text-danger">*</span></label>
-              <input v-model="createForm.name" type="text" class="form-control" required />
+              <input v-model="createForm.name" type="text" class="form-control" maxlength="15" required />
+              <div class="form-text text-end">
+                {{ createForm.name.length }} / 15 Zeichen
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Muskelgruppe</label>
@@ -75,7 +78,10 @@
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label">Name <span class="text-danger">*</span></label>
-              <input v-model="editForm.name" type="text" class="form-control" required />
+              <input v-model="editForm.name" type="text" class="form-control" maxlength="15" required />
+              <div class="form-text text-end">
+                {{ editForm.name.length }} / 15 Zeichen
+              </div>
             </div>
             <div class="mb-3">
               <label class="form-label">Muskelgruppe</label>
@@ -104,6 +110,8 @@ interface Exercise {
   name: string
   muskelgruppe: string
 }
+
+const MAX_NAME_LENGTH = 15
 
 const exercises = ref<Exercise[]>([])
 const isLoading = ref(false)
@@ -176,6 +184,11 @@ async function saveCreate() {
     createError.value = 'Bitte einen Namen für die Übung eingeben.'
     return
   }
+  // client-side validation: name length
+  if (createForm.value.name.trim().length > MAX_NAME_LENGTH) {
+    createError.value = `Der Name darf maximal ${MAX_NAME_LENGTH} Zeichen lang sein.`
+    return
+  }
   try {
     const payload = { name: createForm.value.name.trim(), muskelgruppe: createForm.value.muskelgruppe }
     const res = await fetch(`${baseUrl}/api/exercises`, {
@@ -221,6 +234,11 @@ async function saveEdit() {
   // client-side validation: name required
   if (!editForm.value.name || !editForm.value.name.trim()) {
     editError.value = 'Bitte einen Namen für die Übung eingeben.'
+    return
+  }
+  // client-side validation: name length
+  if (editForm.value.name.trim().length > MAX_NAME_LENGTH) {
+    editError.value = `Der Name darf maximal ${MAX_NAME_LENGTH} Zeichen lang sein.`
     return
   }
   try {
