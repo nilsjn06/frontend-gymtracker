@@ -9,6 +9,13 @@ const title = ref<string>('')
 const loading = ref(false)
 const error = ref<string | null>(null)
 
+// maximale Länge für den Titel
+const maxTitleLength = 25
+const remainingChars = computed(() => {
+  const t = title.value ?? ''
+  return maxTitleLength - t.trim().length
+})
+
 // helper to format local date as YYYY-MM-DD
 function formatLocalDate(d: Date) {
   const y = d.getFullYear()
@@ -49,9 +56,17 @@ async function submit() {
     error.value = 'Bitte einen Titel eingeben.'
     return
   }
+
+  // zusätzliche Validierung: maximale Länge
+  const trimmed = title.value.trim()
+  if (trimmed.length > maxTitleLength) {
+    error.value = `Der Titel darf maximal ${maxTitleLength} Zeichen lang sein.`
+    return
+  }
+
   loading.value = true
   try {
-    const dto = { date: date.value, title: title.value.trim() }
+    const dto = { date: date.value, title: trimmed }
     const created = await createWorkout(dto)
     // Weiter zur Seite zum Hinzufügen von Sets
     await router.push(`/workouts/${created.id}/sets`)
@@ -78,7 +93,9 @@ async function submit() {
 
       <div class="mb-3">
         <label for="title" class="form-label">Titel <span class="text-danger">*</span></label>
-        <input id="title" type="text" class="form-control" v-model="title" placeholder="z.B. Push" required />
+        <input id="title" type="text" class="form-control" v-model="title" placeholder="z.B. Push" required :maxlength="maxTitleLength" />
+        <!-- Weißer, prägnanter Hinweis mit verbleibenden Zeichen -->
+        <div class="form-text" style="color: white; font-weight: 600">Noch {{ remainingChars >= 0 ? remainingChars : 0 }} Zeichen übrig.</div>
       </div>
 
       <button type="submit" class="btn btn-primary" :disabled="loading">

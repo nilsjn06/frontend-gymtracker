@@ -72,9 +72,16 @@ async function saveNewExercise() {
     return
   }
 
+  // neue Längenvalidierung: max 15 Zeichen
+  const nameTrimmed = newExerciseForm.value.name.trim()
+  if (nameTrimmed.length > 15) {
+    createError.value = 'Der Name darf maximal 15 Zeichen lang sein.'
+    return
+  }
+
   creatingExercise.value = true
   try {
-    const payload = { name: newExerciseForm.value.name.trim(), muskelgruppe: newExerciseForm.value.muskelgruppe }
+    const payload = { name: nameTrimmed, muskelgruppe: newExerciseForm.value.muskelgruppe }
     const created = await createExercise(payload)
 
     // lade Übungen neu und wähle das neu erstellte automatisch
@@ -310,7 +317,7 @@ onMounted(() => {
               <div v-else>
                 <div class="mb-3">
                   <label class="form-label">Name <span class="text-danger">*</span></label>
-                  <input v-model="newExerciseForm.name" type="text" class="form-control" placeholder="z. B. Bankdrücken" />
+                  <input v-model="newExerciseForm.name" type="text" class="form-control" placeholder="z. B. Bankdrücken" maxlength="15" />
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Muskelgruppe</label>
