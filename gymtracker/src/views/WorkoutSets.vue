@@ -1,232 +1,39 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getAllExercises, addSetToWorkout, getWorkout, removeExerciseFromWorkout, createExercise } from '../services/api'
-import type { ExerciseDto } from '../services/api'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
+import { useWorkoutSets } from './useWorkoutSets'
+
+const {
+  exercises,
+  loadingExercises,
+  modalOpen,
+  selectedExercise,
+  createMode,
+  newExerciseForm,
+  creatingExercise,
+  createError,
+  sets,
+  addedExercises,
+  saving,
+  error,
+  removingExercise,
+  workoutTitle,
+  loadExercises,
+  openModal,
+  saveNewExercise,
+  selectExercise,
+  addSetRow,
+  removeSetRow,
+  onRepsInput,
+  onWeightInput,
+  finishExercise,
+  removeExercise,
+  endWorkout,
+} = useWorkoutSets()
 
 const route = useRoute()
-const router = useRouter()
 const workoutId = route.params.id as string
-
-const exercises = ref<ExerciseDto[]>([])
-const loadingExercises = ref(false)
-const modalOpen = ref(false)
-const selectedExercise = ref<ExerciseDto | null>(null)
-
-// --- neue States für "Neue Übung" ---
-const createMode = ref(false)
-const newExerciseForm = ref({ name: '', muskelgruppe: 'BRUST' })
-const creatingExercise = ref(false)
-const createError = ref<string | null>(null)
-// --------------------------------------
-
-// sets for the currently selected exercise
-type SetRow = { reps: number | null; weight: number | null }
-const sets = ref<SetRow[]>([])
-
-// list of added exercises locally
-const addedExercises = ref<Array<{ exercise: ExerciseDto; sets: SetRow[] }>>([])
-const saving = ref(false)
-const error = ref<string | null>(null)
-const removingExercise = ref(false)
-
-const workoutTitle = ref<string | null>(null)
 const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`)
-
-async function loadWorkout() {
-  try {
-    const w = await getWorkout(workoutId!)
-    workoutTitle.value = w.title ?? `Workout ${w.id}`
-  } catch (e: any) {
-    // ignore or set fallback
-    workoutTitle.value = `Workout ${workoutId}`
-  }
-}
-
-async function loadExercises() {
-  loadingExercises.value = true
-  try {
-    exercises.value = await getAllExercises()
-  } catch (e: any) {
-    error.value = e.message ?? 'Fehler beim Laden der Übungen'
-  } finally {
-    loadingExercises.value = false
-  }
-}
-
-function openModal() {
-  error.value = null
-  modalOpen.value = true
-  createMode.value = false
-  createError.value = null
-  if (exercises.value.length === 0) {
-    loadExercises()
-  }
-}
-
-// neue Funktion: erstelle Übung via API und lade Liste neu
-async function saveNewExercise() {
-  createError.value = null
-  if (!newExerciseForm.value.name || !newExerciseForm.value.name.trim()) {
-    createError.value = 'Bitte einen Namen für die Übung eingeben.'
-    return
-  }
-
-  // neue Längenvalidierung: max 15 Zeichen
-  const nameTrimmed = newExerciseForm.value.name.trim()
-  if (nameTrimmed.length > 15) {
-    createError.value = 'Der Name darf maximal 15 Zeichen lang sein.'
-    return
-  }
-
-  creatingExercise.value = true
-  try {
-    const payload = { name: nameTrimmed, muskelgruppe: newExerciseForm.value.muskelgruppe }
-    const created = await createExercise(payload)
-
-    // lade Übungen neu und wähle das neu erstellte automatisch
-    await loadExercises()
-    const found = exercises.value.find(e => e.id === created.id)
-    if (found) {
-      selectExercise(found)
-    } else {
-      // fallback: wähle das erste
-      if (exercises.value.length > 0) selectExercise(exercises.value[0])
-    }
-
-    // reset create form
-    newExerciseForm.value = { name: '', muskelgruppe: 'BRUST' }
-    createMode.value = false
-  } catch (e: any) {
-    createError.value = e?.message ?? 'Fehler beim Erstellen der Übung'
-  } finally {
-    creatingExercise.value = false
-  }
-}
-
-function selectExercise(ex: ExerciseDto | undefined) {
-  if (!ex) return
-  selectedExercise.value = ex
-  // initialisiere mit einem Satz
-  sets.value = [{ reps: null, weight: null }]
-  modalOpen.value = false
-}
-
-function addSetRow() {
-  sets.value.push({ reps: null, weight: null })
-}
-
-function removeSetRow(index: number) {
-  sets.value.splice(index, 1)
-}
-
-// --- Input validation / sanitization handlers ---
-// Reps (WHD): only digits, max 4 digits, no decimals
-function onRepsInput(e: Event, s: SetRow) {
-  const input = e.target as HTMLInputElement
-  let raw = input.value || ''
-  // remove non-digit characters
-  raw = raw.replace(/\D+/g, '')
-  // limit to 4 digits
-  if (raw.length > 4) raw = raw.slice(0, 4)
-  // update model
-  s.reps = raw === '' ? null : parseInt(raw, 10)
-  // reflect sanitized value in the input element
-  input.value = raw
-}
-
-// Weight (KG): accept digits and comma or dot, integer part max 3 digits, allow up to two decimal digits (e.g. 10,25 or 100,75)
-function onWeightInput(e: Event, s: SetRow) {
-  const input = e.target as HTMLInputElement
-  let raw = input.value || ''
-  // normalize comma to dot for parsing
-  const normalized = raw.replace(/,/g, '.')
-  // remove anything except digits and dot
-  let cleaned = normalized.replace(/[^0-9.]/g, '')
-  // keep only first dot
-  const parts = cleaned.split('.')
-  if (parts.length > 1) {
-    cleaned = parts[0] + '.' + parts.slice(1).join('')
-  }
-  // enforce max 3 digits for integer part
-  let [intPart, decPart] = cleaned.split('.')
-  if (!intPart) intPart = ''
-  if (intPart.length > 3) intPart = intPart.slice(0, 3)
-  if (decPart !== undefined) {
-    // limit decimals to at most 2 digits
-    decPart = decPart.slice(0, 2)
-    cleaned = intPart + '.' + decPart
-  } else {
-    cleaned = intPart
-  }
-
-  // update model
-  s.weight = cleaned === '' ? null : parseFloat(cleaned)
-  // reflect sanitized value in input using comma as decimal separator for display
-  input.value = cleaned === '' ? '' : cleaned.replace('.', ',')
-}
-// ------------------------------------------------
-
-async function finishExercise() {
-  if (!selectedExercise.value) return
-  error.value = null
-  saving.value = true
-  try {
-    // sende jeden Satz an das Backend
-    for (const s of sets.value) {
-      if (s.reps == null || s.weight == null) continue // überspringe unvollständige Reihen
-      await addSetToWorkout(workoutId!, {
-        exerciseId: selectedExercise.value.id,
-        reps: s.reps,
-        weight: s.weight,
-      })
-    }
-
-    // lokal speichern (für UI)
-    addedExercises.value.push({ exercise: selectedExercise.value, sets: JSON.parse(JSON.stringify(sets.value)) })
-
-    // reset
-    selectedExercise.value = null
-    sets.value = []
-  } catch (e: any) {
-    error.value = e.message ?? 'Fehler beim Hinzufügen der Sätze'
-  } finally {
-    saving.value = false
-  }
-}
-
-async function removeExercise(exerciseId: number) {
-  error.value = null
-  removingExercise.value = true
-  try {
-    // rufe Backend an, das alle Sätze dieser Übung im Workout löscht
-    const updated = await removeExerciseFromWorkout(workoutId!, exerciseId)
-    // aktualisiere lokal: baue addedExercises neu aus dem zurückgegebenen WorkoutViewDto falls vorhanden
-    if (updated && updated.exercises) {
-      // mappe die Struktur: updated.exercises enthält exerciseName, exerciseId, sets
-      addedExercises.value = updated.exercises.map((e: any) => ({ exercise: { id: e.exerciseId, name: e.exerciseName, muskelgruppe: null }, sets: e.sets.map((s: any) => ({ reps: s.reps, weight: s.kg })) }))
-    } else {
-      // fallback: filter lokal
-      addedExercises.value = addedExercises.value.filter(ae => ae.exercise.id !== exerciseId)
-    }
-  } catch (e: any) {
-    error.value = e.message ?? 'Fehler beim Entfernen der Übung'
-  } finally {
-    removingExercise.value = false
-  }
-}
-
-function endWorkout() {
-  // entferne laufende Workout-ID
-  localStorage.removeItem('currentWorkoutId')
-  // ggf. hier noch abschließende Aktionen durchführen
-  router.push('/workout-history')
-}
-
-onMounted(() => {
-  console.log('WorkoutSets mounted for workout', workoutId)
-  loadWorkout()
-})
 </script>
 
 <template>
