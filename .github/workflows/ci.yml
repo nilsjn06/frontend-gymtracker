@@ -9,12 +9,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
-      - run: npm run test:unit
-      - run: npm run build
+          cache-dependency-path: gymtracker/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: gymtracker
+
+      - name: Run unit tests
+        run: npm run test:unit
+        working-directory: gymtracker
+
+      - name: Build
+        run: npm run build
+        working-directory: gymtracker
