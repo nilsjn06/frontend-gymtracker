@@ -19,7 +19,6 @@ const {
   error,
   removingExercise,
   workoutTitle,
-  loadExercises,
   openModal,
   saveNewExercise,
   selectExercise,

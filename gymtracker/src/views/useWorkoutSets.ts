@@ -1,4 +1,4 @@
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getAllExercises, addSetToWorkout, getWorkout, removeExerciseFromWorkout, createExercise } from '../services/api'
 
@@ -116,6 +116,8 @@ export function useWorkoutSets() {
     if (raw.length > 4) raw = raw.slice(0, 4)
     s.reps = raw === '' ? null : parseInt(raw, 10)
     input.value = raw
+    // clear any previous error about missing reps once the user types
+    error.value = null
   }
 
   function onWeightInput(e: Event, s: any) {
@@ -143,18 +145,29 @@ export function useWorkoutSets() {
   async function finishExercise() {
     if (!selectedExercise.value) return
     error.value = null
+
+    // validate that every set has reps filled
+    const missingReps = sets.value.some(s => s.reps == null)
+    if (missingReps) {
+      error.value = 'Bitte für alle Sätze die Wiederholungen (Wdh.) angeben.'
+      return
+    }
+
     saving.value = true
     try {
       for (const s of sets.value) {
-        if (s.reps == null || s.weight == null) continue
+        // since we validated, s.reps is not null
+        const weightToSend = s.weight == null ? 0 : s.weight
         await addSetToWorkout(workoutId!, {
           exerciseId: selectedExercise.value.id,
-          reps: s.reps,
-          weight: s.weight,
+          reps: s.reps!,
+          weight: weightToSend,
         })
       }
 
-      addedExercises.value.push({ exercise: selectedExercise.value, sets: JSON.parse(JSON.stringify(sets.value)) })
+      // normalize sets so that missing weight becomes 0 when shown in the UI
+      const normalizedSets = sets.value.map(s => ({ reps: s.reps, weight: s.weight == null ? 0 : s.weight }))
+      addedExercises.value.push({ exercise: selectedExercise.value, sets: JSON.parse(JSON.stringify(normalizedSets)) })
 
       selectedExercise.value = null
       sets.value = []
@@ -216,8 +229,8 @@ export function useWorkoutSets() {
     onRepsInput,
     onWeightInput,
     finishExercise,
+    hasMissingReps: computed(() => sets.value.some(s => s.reps == null)),
     removeExercise,
     endWorkout,
   }
 }
-
