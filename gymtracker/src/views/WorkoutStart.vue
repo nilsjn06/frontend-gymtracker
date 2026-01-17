@@ -17,7 +17,7 @@ const { date, title, loading, error, maxTitleLength, remainingChars, minDate, ma
       <div class="mb-3">
         <label for="date" class="form-label">Datum</label>
         <input id="date" type="date" class="form-control" v-model="date" :min="minDate" :max="maxDate" />
-        <div class="form-text">Erlaubt: zwischen {{ minDate }} und {{ maxDate }}.</div>
+        <div class="form-text text-white">Erlaubt: zwischen {{ minDate }} und {{ maxDate }}.</div>
       </div>
 
       <div class="mb-3">

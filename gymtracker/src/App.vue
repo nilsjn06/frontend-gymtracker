@@ -34,4 +34,18 @@ import { RouterLink, RouterView } from 'vue-router'
 /* Platz schaffen damit Inhalt nicht von der fixierten Navbar überlappt wird.
    Passe den Wert bei Bedarf an (Bootstrap-Navbarhöhe ~56px) */
 main { padding: 1rem; padding-top: 70px; }
+
+/* Zentriere die Inhalte innerhalb von main (RouterView) horizontal.
+   Die darin enthaltenen container/section behalten ihre eigenen Breiten
+   und werden zentriert, ohne Bootstrap-Rows zu zerstören. */
+main {
+  display: flex;
+  justify-content: center;
+}
+
+/* Beschränke die Breite des Seiteninhalts damit alles optisch zentriert bleibt */
+main > * {
+  width: 100%;
+  max-width: 980px;
+}
 </style>

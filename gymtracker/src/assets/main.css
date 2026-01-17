@@ -24,12 +24,37 @@ a,
 @media (min-width: 1024px) {
   body {
     display: flex;
-    place-items: center;
+    justify-content: center; /* horizontal zentrierung der App */
+    align-items: flex-start; /* Inhalte starten oben (Navbar bleibt oben) */
+    min-height: 100vh;
   }
 
   #app {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr; /* einspaltiges Layout -> Inhalte zentriert anzeigen */
+    justify-items: center; /* zentriert die direkten Kinder horizontal */
     padding: 0 2rem;
+  }
+
+  /* Stelle sicher, dass die direkten Kinder (Nav, Main / RouterView) nicht zu breit sind
+     und in der Mitte bleiben. Passe max-width bei Bedarf an (z.B. 980px). */
+  #app > * {
+    width: 100%;
+    max-width: 980px;
+  }
+
+  /* Ausnahmen: die Navbar soll über die gesamte Viewport-Breite gehen und nicht
+     von der zentrierten max-width eingeschränkt werden. */
+  #app > nav {
+    max-width: none;
+    width: 100%;
+  }
+
+  /* Optional: falls Bootstrap's fixed-top innerhalb des zentrierten Containers
+     eingeschränkt wird, stellen wir sicher, dass die Navbar wirklich die
+     gesamte Viewport-Breite einnimmt. */
+  #app > nav.navbar {
+    left: 0;
+    right: 0;
   }
 }
