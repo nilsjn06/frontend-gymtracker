@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useWorkoutSets } from './useWorkoutSets'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import TrashIcon from '@/components/icons/TrashIcon.vue'
 
 const {
   exercises,
@@ -51,7 +52,9 @@ const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`
           <div class="card-body">
             <h6 class="card-title">{{ ae.exercise.name }}</h6>
             <div class="mb-2 text-end">
-              <button class="btn btn-sm btn-outline-danger" @click="removeExercise(ae.exercise.id)" :disabled="removingExercise">Aus Workout entfernen</button>
+              <button class="btn btn-sm btn-outline-danger" @click="removeExercise(ae.exercise.id)" :disabled="removingExercise">
+                <TrashIcon customClass="me-1" /> Aus Workout entfernen
+              </button>
             </div>
             <ul class="list-group list-group-flush">
               <li v-for="(s, i) in ae.sets" :key="i" class="list-group-item">
@@ -85,7 +88,9 @@ const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`
               <input type="text" class="form-control" :value="s.weight == null ? '' : String(s.weight).replace('.', ',')" @input="onWeightInput($event, s)" inputmode="decimal" pattern="[0-9.,]*" />
             </div>
             <div>
-              <button type="button" class="btn btn-outline-danger btn-sm" @click.prevent="removeSetRow(i)">-</button>
+              <button type="button" class="btn btn-outline-danger btn-sm" @click.prevent="removeSetRow(i)" title="Satz entfernen" aria-label="Satz entfernen">
+                <TrashIcon />
+              </button>
             </div>
           </div>
 

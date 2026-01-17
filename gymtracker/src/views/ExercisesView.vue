@@ -25,8 +25,12 @@
               <p class="card-text"><strong>Muskelgruppe:</strong> {{ ex.muskelgruppe }}</p>
             </div>
             <div class="d-flex flex-column align-items-end">
-              <button class="btn btn-warning mb-2" @click="openEdit(ex)">Bearbeiten</button>
-              <button class="btn btn-danger" @click="deleteExercise(ex.id)">Löschen</button>
+              <button class="btn btn-warning mb-2" @click="openEdit(ex)">
+                <EditIcon customClass="me-1" /> Bearbeiten
+              </button>
+              <button class="btn btn-danger" @click="deleteExercise(ex.id)">
+                <TrashIcon customClass="me-1" /> Löschen
+              </button>
             </div>
           </div>
         </div>
@@ -105,6 +109,8 @@
 <script setup lang="ts">
 import { useExercises } from './useExercises'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import TrashIcon from '@/components/icons/TrashIcon.vue'
+import EditIcon from '@/components/icons/EditIcon.vue'
 
 const {
   exercises,

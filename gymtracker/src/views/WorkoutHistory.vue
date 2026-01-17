@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useWorkoutHistory } from './useWorkoutHistory'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
+import TrashIcon from '@/components/icons/TrashIcon.vue'
 
 const { workouts, loading, error, deleting, getDisplayName, handleDelete } = useWorkoutHistory()
 </script>
@@ -85,7 +86,7 @@ const { workouts, loading, error, deleting, getDisplayName, handleDelete } = use
                   role="status"
                   aria-hidden="true"
                 ></span>
-                Löschen
+                <TrashIcon customClass="me-1" /> Löschen
               </button>
             </div>
 
