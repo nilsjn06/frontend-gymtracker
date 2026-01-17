@@ -55,8 +55,8 @@ const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`
           <div class="card-body">
             <h6 class="card-title">{{ ae.exercise.name }}</h6>
             <div class="mb-2 text-end">
-              <button class="btn btn-sm btn-outline-danger" @click="removeExercise(ae.exercise.id)" :disabled="removingExercise">
-                <TrashIcon customClass="me-1" /> Aus Workout entfernen
+              <button class="btn btn-sm btn-outline-danger" @click="removeExercise(ae.exercise.id)" :disabled="removingExercise" title="Aus Workout entfernen" aria-label="Aus Workout entfernen">
+                <TrashIcon />
               </button>
             </div>
             <ul class="list-group list-group-flush">

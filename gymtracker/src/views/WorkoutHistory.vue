@@ -80,13 +80,8 @@ const { workouts, loading, error, deleting, getDisplayName, handleDelete } = use
                 @click="handleDelete(workout.id)"
                 :disabled="deleting[String(workout.id)]"
               >
-                <span
-                  v-if="deleting[String(workout.id)]"
-                  class="spinner-border spinner-border-sm me-1"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
-                <TrashIcon customClass="me-1" /> Löschen
+                <span v-if="!deleting[String(workout.id)]"><TrashIcon /></span>
+                <span v-else><!-- spinner visible, icon hidden --></span>
               </button>
             </div>
 

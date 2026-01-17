@@ -25,11 +25,11 @@
               <p class="card-text"><strong>Muskelgruppe:</strong> {{ ex.muskelgruppe }}</p>
             </div>
             <div class="d-flex flex-column align-items-end">
-              <button class="btn btn-warning mb-2" @click="openEdit(ex)">
-                <EditIcon customClass="me-1" /> Bearbeiten
+              <button class="btn btn-warning mb-2" @click="openEdit(ex)" title="Bearbeiten" aria-label="Bearbeiten">
+                <EditIcon />
               </button>
-              <button class="btn btn-danger" @click="deleteExercise(ex.id)">
-                <TrashIcon customClass="me-1" /> Löschen
+              <button class="btn btn-danger" @click="deleteExercise(ex.id)" title="Löschen" aria-label="Löschen">
+                <TrashIcon />
               </button>
             </div>
           </div>
