@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <p v-if="isLoading">Lade Übungen...</p>
+    <LoadingSpinner v-if="isLoading" />
     <p v-else-if="error" class="text-danger">Fehler: {{ error }}</p>
 
     <div v-else class="row g-4">
@@ -104,6 +104,7 @@
 
 <script setup lang="ts">
 import { useExercises } from './useExercises'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const {
   exercises,

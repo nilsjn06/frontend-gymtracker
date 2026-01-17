@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useWorkoutHistory } from './useWorkoutHistory'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const { workouts, loading, error, deleting, getDisplayName, handleDelete } = useWorkoutHistory()
 </script>
@@ -8,7 +9,7 @@ const { workouts, loading, error, deleting, getDisplayName, handleDelete } = use
   <div class="container py-3 workout-history">
     <h1 class="mb-3">Workoutverlauf</h1>
 
-    <div v-if="loading" class="my-3">Lade Workouts...</div>
+    <LoadingSpinner v-if="loading" />
     <div v-if="error" class="alert alert-danger" role="alert">{{ error }}</div>
 
     <div v-if="!loading && workouts.length === 0" class="alert alert-secondary">

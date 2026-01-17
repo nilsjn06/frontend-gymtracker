@@ -2,6 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useWorkoutSets } from './useWorkoutSets'
+import LoadingSpinner from '@/components/LoadingSpinner.vue'
 
 const {
   exercises,
@@ -108,7 +109,7 @@ const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`
             <button type="button" class="btn-close" aria-label="Close" @click="modalOpen = false"></button>
           </div>
           <div class="modal-body">
-            <div v-if="loadingExercises">Lade Übungen...</div>
+            <LoadingSpinner v-if="loadingExercises" />
             <div v-else>
               <div v-if="!createMode">
                 <ul class="list-group">
