@@ -174,6 +174,45 @@ describe('useWorkoutSets', () => {
     expect(s.loadingExercises.value).toBe(false)
   })
 
+  it('hat muskelgruppen, selectedGroup default ist ALL und filteredExercises zeigt alle Übungen', () => {
+    const s = mountUseWorkoutSets()
+
+    expect(Array.isArray(s.muskelgruppen)).toBe(true)
+    expect(s.muskelgruppen.length).toBeGreaterThan(0)
+    expect(s.selectedGroup.value).toBe('ALL')
+
+    // set exercises and expect filteredExercises to reflect all when selectedGroup is ALL
+    s.exercises.value = [
+      { id: 1, name: 'A', muskelgruppe: 'BRUST' },
+      { id: 2, name: 'B', muskelgruppe: 'BEINE' },
+    ]
+
+    expect(s.filteredExercises.value.length).toBe(2)
+  })
+
+  it('filteredExercises filtert Übungen nach ausgewählter Kategorie (case-insensitive)', () => {
+    const s = mountUseWorkoutSets()
+
+    s.exercises.value = [
+      { id: 1, name: 'Bank', muskelgruppe: 'BRUST' },
+      { id: 2, name: 'Kniebeuge', muskelgruppe: 'BEINE' },
+      { id: 3, name: 'Curl', muskelgruppe: 'Bizeps' },
+      { id: 4, name: 'Ohne', muskelgruppe: null },
+    ]
+
+    // filter by BEINE
+    s.selectedGroup.value = 'BEINE'
+    expect(s.filteredExercises.value).toEqual([{ id: 2, name: 'Kniebeuge', muskelgruppe: 'BEINE' }])
+
+    // filter by BIZEPS (note different case in data)
+    s.selectedGroup.value = 'BIZEPS'
+    expect(s.filteredExercises.value).toEqual([{ id: 3, name: 'Curl', muskelgruppe: 'Bizeps' }])
+
+    // ALL should show all
+    s.selectedGroup.value = 'ALL'
+    expect(s.filteredExercises.value.length).toBe(4)
+  })
+
   it('selectExercise setzt selectedExercise, initialisiert sets und schließt Modal', async () => {
     const s = mountUseWorkoutSets()
     s.modalOpen.value = true

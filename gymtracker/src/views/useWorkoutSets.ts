@@ -10,6 +10,12 @@ export function useWorkoutSets() {
   const workoutId = route.params.id as string
 
   const exercises = ref<ExerciseDto[]>([])
+  const muskelgruppen = ['BRUST','RUECKEN','BEINE','SCHULTERN','BIZEPS','TRIZEPS','BAUCH']
+  const selectedGroup = ref<string>('ALL')
+  const filteredExercises = computed(() => {
+    if (selectedGroup.value === 'ALL') return exercises.value
+    return exercises.value.filter(e => (e.muskelgruppe ?? '').toUpperCase() === selectedGroup.value)
+  })
   const loadingExercises = ref(false)
   const modalOpen = ref(false)
   const selectedExercise = ref<ExerciseDto | null>(null)
@@ -215,6 +221,9 @@ export function useWorkoutSets() {
     creatingExercise,
     createError,
     sets,
+    muskelgruppen,
+    selectedGroup,
+    filteredExercises,
     addedExercises,
     saving,
     error,

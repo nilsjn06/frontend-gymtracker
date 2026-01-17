@@ -30,6 +30,9 @@ const {
   finishExercise,
   removeExercise,
   endWorkout,
+  muskelgruppen,
+  selectedGroup,
+  filteredExercises,
 } = useWorkoutSets()
 
 const route = useRoute()
@@ -116,8 +119,15 @@ const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`
             <LoadingSpinner v-if="loadingExercises" />
             <div v-else>
               <div v-if="!createMode">
+                <div class="mb-3 d-flex gap-2 align-items-center">
+                  <label class="mb-0 me-2">Kategorie</label>
+                  <select v-model="selectedGroup" class="form-select" style="width: 180px">
+                    <option value="ALL">Alle Muskelgruppen</option>
+                    <option v-for="opt in muskelgruppen" :key="opt" :value="opt">{{ opt }}</option>
+                  </select>
+                </div>
                 <ul class="list-group">
-                  <li v-for="ex in exercises" :key="ex.id" class="list-group-item list-group-item-action" @click="selectExercise(ex)" style="cursor:pointer">
+                  <li v-for="ex in filteredExercises" :key="ex.id" class="list-group-item list-group-item-action" @click="selectExercise(ex)" style="cursor:pointer">
                     <div class="d-flex justify-content-between">
                       <div>{{ ex.name }}</div>
                       <small class="text-muted">{{ ex.muskelgruppe ?? '' }}</small>
