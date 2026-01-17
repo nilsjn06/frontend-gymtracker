@@ -243,23 +243,27 @@ describe('useWorkoutSets', () => {
     const s = mountUseWorkoutSets()
 
     s.selectedExercise.value = { id: 10, name: 'Bankdrücken', muskelgruppe: 'BRUST' }
+    // Kein Satz mit null reps mehr: fehlende Reps verhindern nun das Speichern
     s.sets.value = [
       { reps: 10, weight: 80 },
-      { reps: null, weight: 60 },
       { reps: 8, weight: null },
       { reps: 6, weight: 90 },
     ]
 
     await s.finishExercise()
 
-    expect(addSetToWorkoutMock).toHaveBeenCalledTimes(2)
+    // weight null wird beim Senden zu 0 normalisiert
+    expect(addSetToWorkoutMock).toHaveBeenCalledTimes(3)
     expect(addSetToWorkoutMock).toHaveBeenNthCalledWith(1, '123', { exerciseId: 10, reps: 10, weight: 80 })
-    expect(addSetToWorkoutMock).toHaveBeenNthCalledWith(2, '123', { exerciseId: 10, reps: 6, weight: 90 })
+    expect(addSetToWorkoutMock).toHaveBeenNthCalledWith(2, '123', { exerciseId: 10, reps: 8, weight: 0 })
+    expect(addSetToWorkoutMock).toHaveBeenNthCalledWith(3, '123', { exerciseId: 10, reps: 6, weight: 90 })
 
     expect(s.addedExercises.value).toHaveLength(1)
     const first = s.addedExercises.value[0]!
     expect(first.exercise.id).toBe(10)
-    expect(first.sets.length).toBe(4)
+    expect(first.sets.length).toBe(3)
+    // prüfe, dass das null-gewicht in der gespeicherten Darstellung 0 ist
+    expect(first.sets[1]).toEqual({ reps: 8, weight: 0 })
 
     expect(s.selectedExercise.value).toBeNull()
     expect(s.sets.value.length).toBe(0)
