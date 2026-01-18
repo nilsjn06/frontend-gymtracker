@@ -241,11 +241,11 @@ describe('useWorkoutSets', () => {
     const s = mountUseWorkoutSets()
 
     s.createMode.value = true
-    s.newExerciseForm.value.name = 'a'.repeat(16)
+    s.newExerciseForm.value.name = 'a'.repeat(21)
 
     await s.saveNewExercise()
 
-    expect(s.createError.value).toBe('Der Name darf maximal 15 Zeichen lang sein.')
+    expect(s.createError.value).toBe('Der Name darf maximal 20 Zeichen lang sein.')
     expect(createExerciseMock).not.toHaveBeenCalled()
   })
 

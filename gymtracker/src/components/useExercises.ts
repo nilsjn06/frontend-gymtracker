@@ -6,7 +6,7 @@ export interface Exercise {
   muskelgruppe: string
 }
 
-const MAX_NAME_LENGTH = 15
+const MAX_NAME_LENGTH = 20
 
 export function useExercises() {
   const exercises = ref<Exercise[]>([])

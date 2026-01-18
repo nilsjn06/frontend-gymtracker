@@ -96,10 +96,10 @@ describe('useExercises', () => {
 
     const { createForm, createError, saveCreate } = mountUseExercises()
 
-    createForm.value.name = 'a'.repeat(16) // 16 Zeichen
+    createForm.value.name = 'a'.repeat(21) // 21 Zeichen
     await saveCreate()
 
-    expect(createError.value).toBe('Der Name darf maximal 15 Zeichen lang sein.')
+    expect(createError.value).toBe('Der Name darf maximal 20 Zeichen lang sein.')
   })
 
   it('deleteExercise entfernt Übung lokal bei confirm=true und DELETE ok', async () => {

@@ -139,7 +139,7 @@ const displayTitle = computed(() => workoutTitle.value ?? `Workout ${workoutId}`
               <div v-else>
                 <div class="mb-3">
                   <label class="form-label">Name <span class="text-danger">*</span></label>
-                  <input v-model="newExerciseForm.name" type="text" class="form-control" placeholder="z. B. Bankdrücken" maxlength="15" />
+                  <input v-model="newExerciseForm.name" type="text" class="form-control" placeholder="z. B. Bankdrücken" maxlength="20" />
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Muskelgruppe</label>

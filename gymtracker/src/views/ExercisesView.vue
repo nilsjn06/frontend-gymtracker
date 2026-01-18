@@ -50,9 +50,9 @@
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label">Name <span class="text-danger">*</span></label>
-              <input v-model="createForm.name" type="text" class="form-control" maxlength="15" required />
+              <input v-model="createForm.name" type="text" class="form-control" maxlength="20" required />
               <div class="form-text text-end">
-                {{ createForm.name.length }} / 15 Zeichen
+                {{ createForm.name.length }} / 20 Zeichen
               </div>
             </div>
             <div class="mb-3">
@@ -82,9 +82,9 @@
           <div class="modal-body">
             <div class="mb-3">
               <label class="form-label">Name <span class="text-danger">*</span></label>
-              <input v-model="editForm.name" type="text" class="form-control" maxlength="15" required />
+              <input v-model="editForm.name" type="text" class="form-control" maxlength="20" required />
               <div class="form-text text-end">
-                {{ editForm.name.length }} / 15 Zeichen
+                {{ editForm.name.length }} / 20 Zeichen
               </div>
             </div>
             <div class="mb-3">

@@ -73,8 +73,8 @@ export function useWorkoutSets() {
     }
 
     const nameTrimmed = newExerciseForm.value.name.trim()
-    if (nameTrimmed.length > 15) {
-      createError.value = 'Der Name darf maximal 15 Zeichen lang sein.'
+    if (nameTrimmed.length > 20) {
+      createError.value = 'Der Name darf maximal 20 Zeichen lang sein.'
       return
     }
 
