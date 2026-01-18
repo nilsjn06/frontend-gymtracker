@@ -12,7 +12,7 @@ vi.mock('../../services/api', () => ({
   createWorkout: (...args: any[]) => createWorkoutMock(...args),
 }))
 
-import { useWorkoutStart } from '@/views/useWorkoutStart.ts'
+import { useWorkoutStart } from '@/components/useWorkoutStart.ts'
 
 describe('useWorkoutStart', () => {
   beforeEach(() => {

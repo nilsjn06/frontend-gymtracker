@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
-import { useWorkoutHistory } from '@/views/useWorkoutHistory'
+import { useWorkoutHistory } from '@/components/useWorkoutHistory.ts'
 
 // --------------------
 // API-Mocks

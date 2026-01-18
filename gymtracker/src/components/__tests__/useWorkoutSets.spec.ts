@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { defineComponent, nextTick } from 'vue'
 import { mount } from '@vue/test-utils'
-import { useWorkoutSets } from '@/views/useWorkoutSets'
+import { useWorkoutSets } from '@/components/useWorkoutSets.ts'
 
 // --------------------
 // Router-Mocks

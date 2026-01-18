@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { nextTick, defineComponent } from 'vue'
 import { mount } from '@vue/test-utils'
-import { useExercises } from '@/views/useExercises'
+import { useExercises } from '@/components/useExercises.ts'
 
 function mountUseExercises(): ReturnType<typeof useExercises> {
   let exposed!: ReturnType<typeof useExercises>

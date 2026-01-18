@@ -107,7 +107,7 @@
 </template>
 
 <script setup lang="ts">
-import { useExercises } from './useExercises'
+import { useExercises } from '../components/useExercises.ts'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import TrashIcon from '@/components/icons/TrashIcon.vue'
 import EditIcon from '@/components/icons/EditIcon.vue'

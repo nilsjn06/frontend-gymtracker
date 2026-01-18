@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useWorkoutSets } from './useWorkoutSets'
+import { useWorkoutSets } from '../components/useWorkoutSets.ts'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import TrashIcon from '@/components/icons/TrashIcon.vue'
 

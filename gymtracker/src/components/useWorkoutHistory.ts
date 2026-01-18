@@ -1,5 +1,5 @@
 import { ref, onMounted } from 'vue'
-import { getAllWorkouts, getWorkoutDetails, getAllExercises, deleteWorkout } from '../services/api'
+import { getAllWorkouts, getWorkoutDetails, getAllExercises, deleteWorkout } from '../services/api.ts'
 
 export function useWorkoutHistory() {
   const workouts = ref<any[]>([])

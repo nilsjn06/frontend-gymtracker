@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { useWorkoutStart } from './useWorkoutStart'
+import { useWorkoutStart } from '../components/useWorkoutStart.ts'
 
 const router = useRouter()
 const { date, title, loading, error, maxTitleLength, remainingChars, minDate, maxDate, submit } = useWorkoutStart()

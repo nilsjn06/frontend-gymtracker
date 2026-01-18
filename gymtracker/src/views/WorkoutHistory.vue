@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useWorkoutHistory } from './useWorkoutHistory'
+import { useWorkoutHistory } from '../components/useWorkoutHistory.ts'
 import LoadingSpinner from '@/components/LoadingSpinner.vue'
 import TrashIcon from '@/components/icons/TrashIcon.vue'
 

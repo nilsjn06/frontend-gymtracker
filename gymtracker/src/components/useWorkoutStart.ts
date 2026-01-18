@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { createWorkout } from '../services/api'
+import { createWorkout } from '../services/api.ts'
 
 export function useWorkoutStart() {
   const router = useRouter()
