@@ -23,9 +23,9 @@
 
 /* semantic color variables for this project */
 :root {
-  --color-background: var(--vt-c-white);
-  --color-background-soft: var(--vt-c-white-soft);
-  --color-background-mute: var(--vt-c-white-mute);
+  --color-background: #112222;
+  --color-background-soft: #112222;
+  --color-background-mute: #112222;
 
   --color-border: var(--vt-c-divider-light-2);
   --color-border-hover: var(--vt-c-divider-light-1);
@@ -38,9 +38,9 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: var(--vt-c-black);
-    --color-background-soft: var(--vt-c-black-soft);
-    --color-background-mute: var(--vt-c-black-mute);
+    --color-background: #112222;
+    --color-background-soft: #112222;
+    --color-background-mute: #112222;
 
     --color-border: var(--vt-c-divider-dark-2);
     --color-border-hover: var(--vt-c-divider-dark-1);
@@ -83,4 +83,34 @@ body {
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navbar: set background to #326363 and ensure readable link colors across the app */
+:root {
+  --color-navbar: #326363;
+  --color-navbar-text: #ffffff;
+}
+
+.navbar {
+  background-color: var(--color-navbar) !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.navbar .navbar-brand,
+.navbar .nav-link {
+  color: var(--color-navbar-text) !important;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link:focus {
+  color: rgba(255, 255, 255, 0.95) !important;
+  opacity: 0.95;
+}
+
+.navbar .navbar-toggler {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.navbar .navbar-toggler-icon {
+  filter: invert(1) brightness(1.2);
 }
